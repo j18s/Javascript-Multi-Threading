@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Unresponsive dialog problem</title>
+</head>
+<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+<body>
+<input id="num">
+<button id="btnWords">Get Words</button>
+<button id="btnTerminate">Terminator</button><br>
+<progress id="prg" value="0" max="100"></progress>
+<a href="#">Link | </a><a href="#">Link | </a><a href="#">Link | </a><a href="#">Link | </a>
+<a href="#">Link | </a><a href="#">Link | </a><a href="#">Link | </a><a href="#">Link | </a>
+<div id="msg"></div>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript">
+	var worker=new Worker('solution.js');
+
+	$('#btnTerminate').click(function() {
+			$('#msg').text('');			
+			if(worker)
+			{
+				worker.terminate();
+				worker=null;
+				$('#msg').text('worker destroyed');	
+				$('#prg').val(0)		;
+			}
+	})
+	$('#btnWords').click(function() {
+			$('#msg').text('');			
+
+	var num=$('#num').val();
+	if(worker == null)
+		worker=new Worker('solution.js');
+	worker.postMessage(num);
+	worker.onmessage=function(event) {
+			if(event.data.percent!=null)
+				$('#prg').val(event.data.percent)
+			$('#msg').text(event.data.showText);
+		}
+	
+	worker.onerror=function(event) {
+			$('#msg').text(event.lineno+ ' : '+ event.message);
+		}
+	})
+</script>
+
+</body>
+</html>
